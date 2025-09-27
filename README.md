@@ -11,9 +11,10 @@ Ein vollständiger n8n-Stack mit PostgreSQL-Datenbank und n8n-MCP-Integration, b
 
 ## 🖥️ Systemvoraussetzungen
 
-### Windows 10/11
-- Windows 10 Version 2004 oder neuer (Build 19041+)
-- Windows 11 (alle Versionen)
+### Allgemeine Anforderungen
+- Node.js 20+ (für Claude Code Installation)
+- Docker und Docker Compose
+- WSL2 (falls Windows verwendet wird)
 - Mindestens 8 GB RAM (16 GB empfohlen)
 - Mindestens 10 GB freier Festplattenspeicher
 
@@ -23,7 +24,7 @@ Ein vollständiger n8n-Stack mit PostgreSQL-Datenbank und n8n-MCP-Integration, b
 
 ## 🚀 Schritt-für-Schritt Installation
 
-### Schritt 1: WSL2 installieren (empfohlen für Windows)
+### Schritt 1: WSL2 installieren (erforderlich für Windows)
 
 #### 1.1 WSL aktivieren
 
@@ -110,41 +111,33 @@ docker run hello-world
 
 ### Schritt 3: Claude Code installieren
 
-#### Option A: Claude Code in WSL2 (empfohlen)
+Claude Code wird über npm installiert. Du benötigst Node.js 20+ für die Installation.
 
-1. **WSL2 Ubuntu Terminal öffnen**
-2. **Claude Code herunterladen:**
+#### Node.js installieren (falls nicht vorhanden)
 
+**WSL2/Linux:**
 ```bash
-# Ins Home-Verzeichnis wechseln
-cd ~
+# Über NodeSource (empfohlen)
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
 
-# Claude Code CLI herunterladen (aktuellste Version prüfen)
-curl -L "https://github.com/anthropics/claude-code/releases/latest/download/claude-code-linux-x64.tar.gz" -o claude-code.tar.gz
-
-# Extrahieren
-tar -xzf claude-code.tar.gz
-
-# Ausführbar machen und in PATH verschieben
-sudo mv claude-code /usr/local/bin/
-sudo chmod +x /usr/local/bin/claude-code
-
-# Installation testen
-claude-code --version
+# Version prüfen
+node --version
+npm --version
 ```
 
-#### Option B: Claude Code für Windows
+**Windows:**
+1. Besuche: https://nodejs.org/
+2. Lade die LTS-Version herunter
+3. Führe den Installer aus
 
-1. **Besuche:** https://github.com/anthropics/claude-code/releases
-2. **Lade herunter:** `claude-code-windows-x64.zip`
-3. **Extrahiere** die Datei in einen Ordner (z.B. `C:\tools\claude-code\`)
-4. **Füge zur PATH hinzu:**
-   - Windows-Taste + R → `sysdm.cpl` → Enter
-   - "Umgebungsvariablen" → "Path" bearbeiten
-   - "Neu" → Pfad zu Claude Code hinzufügen
-5. **Öffne eine neue PowerShell und teste:**
+#### Claude Code installieren
 
-```powershell
+```bash
+# Claude Code global installieren
+npm install -g @anthropic-ai/claude-code
+
+# Installation testen
 claude-code --version
 ```
 
@@ -164,7 +157,6 @@ git --version
 
 ### 1. Repository klonen
 
-#### In WSL2:
 ```bash
 # Ins Projekte-Verzeichnis wechseln
 cd ~
@@ -172,19 +164,7 @@ mkdir -p projects
 cd projects
 
 # Repository klonen (URL anpassen)
-git clone <deine-repository-url> n8n
-cd n8n
-```
-
-#### In Windows:
-```cmd
-# Ins gewünschte Verzeichnis wechseln
-cd C:\Users\%USERNAME%\
-mkdir projects
-cd projects
-
-# Repository klonen
-git clone <deine-repository-url> n8n
+git clone https://github.com/betarepos/n8n n8n
 cd n8n
 ```
 
@@ -244,7 +224,7 @@ echo "N8N_API_KEY=$(openssl rand -base64 32)" >> .env.local
 
 ```bash
 # Im Projekt-Verzeichnis
-cd ~/projects/n8n  # (WSL2) oder C:\Users\%USERNAME%\projects\n8n (Windows)
+cd ~/projects/n8n
 
 # Stack im Hintergrund starten
 docker-compose up -d
@@ -293,15 +273,8 @@ n8n-mcp       ghcr.io/czlonkowski/n8n-mcp:latest Up
 
 ### Projekt in Claude Code öffnen
 
-#### WSL2:
 ```bash
 cd ~/projects/n8n
-claude-code .
-```
-
-#### Windows:
-```cmd
-cd C:\Users\%USERNAME%\projects\n8n
 claude-code .
 ```
 
@@ -378,15 +351,11 @@ docker stats
 ### Port 5678 bereits belegt
 
 ```bash
-# Windows
-netstat -ano | findstr 5678
-
-# Linux/WSL2
+# Port-Nutzung prüfen
 sudo netstat -tulpn | grep 5678
 
 # Prozess beenden (ID aus obigem Befehl)
-taskkill /PID <PID> /F  # Windows
-sudo kill -9 <PID>      # Linux
+sudo kill -9 <PID>
 ```
 
 ### n8n lädt nicht/Verbindungsfehler
